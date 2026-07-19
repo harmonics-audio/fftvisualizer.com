@@ -7,9 +7,13 @@ import { createDemoAudio, type DemoAudio } from './demoAudio'
 const data = ref(new Uint8Array(80))
 const dataLeft = ref(new Uint8Array(80))
 const dataRight = ref(new Uint8Array(80))
-const playing = ref(false)
+// Audio source: 'synth' feeds the generative track (external mode), 'mic' hands
+// off to the component's built-in local capture. Nothing starts automatically.
+const source = ref<'none' | 'synth' | 'mic'>('none')
 const loading = ref(false)
 let demo: DemoAudio | null = null
+
+const mode = computed(() => (source.value === 'mic' ? 'local' : 'external'))
 
 // Curated looks — each is guaranteed to look good, and together they show the range.
 const presets = [
@@ -80,14 +84,19 @@ const presets = [
 const active = ref(0)
 const activeProps = computed(() => presets[active.value]!.props)
 
-async function toggle() {
-  if (playing.value) {
-    demo?.stop()
-    demo = null
-    playing.value = false
+function stopSynth() {
+  demo?.stop()
+  demo = null
+}
+
+async function toggleSynth() {
+  if (source.value === 'synth') {
+    stopSynth()
+    source.value = 'none'
     return
   }
   loading.value = true
+  source.value = 'synth' // mode → external (also stops the mic if it was running)
   demo = createDemoAudio(80)
   await demo.start((mono, left, right) => {
     data.value = mono
@@ -95,10 +104,24 @@ async function toggle() {
     dataRight.value = right
   })
   loading.value = false
-  playing.value = true
 }
 
-onBeforeUnmount(() => demo?.stop())
+function toggleMic() {
+  if (source.value === 'mic') {
+    source.value = 'none' // mode → external → the component releases the mic
+    return
+  }
+  stopSynth()
+  source.value = 'mic' // mode → local → the component requests mic permission
+}
+
+// e.g. mic permission denied / WebGL failure — revert the mic toggle
+function onError() {
+  if (source.value === 'mic') source.value = 'none'
+  loading.value = false
+}
+
+onBeforeUnmount(stopSynth)
 </script>
 
 <template>
@@ -106,7 +129,8 @@ onBeforeUnmount(() => demo?.stop())
     <div class="demo-player">
       <ClientOnly>
         <FFTVisualizer
-          mode="external"
+          :mode="mode"
+          audio-source="mic"
           :data="data"
           :data-left="dataLeft"
           :data-right="dataRight"
@@ -114,15 +138,20 @@ onBeforeUnmount(() => demo?.stop())
           background="#0a0a12"
           :show-stats="false"
           v-bind="activeProps"
+          @error="onError"
         />
       </ClientOnly>
     </div>
 
     <div class="demo-bar">
-      <button class="demo-play" @click="toggle">
+      <button class="demo-play" @click="toggleSynth">
         <template v-if="loading">Loading…</template>
-        <template v-else-if="playing">❚❚ Pause</template>
-        <template v-else>▶ Play</template>
+        <template v-else-if="source === 'synth'">❚❚ Pause</template>
+        <template v-else>▶ Play track</template>
+      </button>
+      <button class="demo-play" @click="toggleMic">
+        <template v-if="source === 'mic'">■ Stop mic</template>
+        <template v-else>🎤 Use mic</template>
       </button>
       <div class="demo-presets">
         <button
