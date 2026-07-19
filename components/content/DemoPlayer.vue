@@ -65,6 +65,15 @@ const presets = [
       colorMode: 'bar-level', stereo: true,
       showPeaks: true, peakDecay: 0.99, smoothing: 0.65
     }
+  },
+  {
+    // playground "lazers" preset (noiseFloor dropped for the clean synth)
+    name: 'Lazers',
+    props: {
+      radial: true, radialInnerRadius: 0, barSpace: 0.35, glow: 1,
+      gradient: 'rainbow', gradientDirection: 'horizontal',
+      stereo: true, showPeaks: false, smoothing: 0.5, bands: 40
+    }
   }
 ] as const
 
