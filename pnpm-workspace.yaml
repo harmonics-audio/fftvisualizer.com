@@ -4,3 +4,5 @@ allowBuilds:
   esbuild: true
   sharp: true
   vue-demi: true
+minimumReleaseAgeExclude:
+  - vue-fft-visualizer@0.3.0

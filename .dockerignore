@@ -1,0 +1,11 @@
+node_modules
+.nuxt
+.output
+.data
+.git
+.github
+.vercel
+.env
+*.log
+Dockerfile
+.dockerignore
