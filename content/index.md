@@ -19,7 +19,7 @@ the entire frame drawn by a single fragment shader.
 
 #default
   :::div{.hero-visual}
-  ![FFT Visualizer radial spectrum](/hero.png){width="1034" height="926"}
+    ![FFT Visualizer radial spectrum](/hero.png){width="1034" height="926"}
   :::
 
 #links
