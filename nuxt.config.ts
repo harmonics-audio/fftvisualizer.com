@@ -15,6 +15,13 @@ export default defineNuxtConfig({
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:image', content: 'https://fftvisualizer.com/og-image.png' },
       ],
+      link: [
+        // Docus already emits the /favicon.ico link (now pointing at our replaced file).
+        // We add the crisp SVG (preferred by modern browsers over the .ico fallback) and
+        // the Apple touch icon, which Docus does not provide.
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      ],
     },
   },
   nitro: {
