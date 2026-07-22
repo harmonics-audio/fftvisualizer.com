@@ -17,6 +17,13 @@ export interface DemoAudio {
   stop: () => void
 }
 
+export interface DemoAudioOptions {
+  /** FFT window size (default 2048). */
+  fftSize?: number
+  /** 'music' = the rhythmic loop; 'ambient' = the warm, tempo-less fireplace bed. Default 'music'. */
+  mood?: 'music' | 'ambient'
+}
+
 const TEMPO = 115
 const STEP = 60 / TEMPO / 4 // sixteenth-note seconds
 const LOOP_STEPS = 64 // 4 bars × 16 sixteenths
@@ -31,7 +38,9 @@ const BARS = [
   { root: 55, third: 4 }  // G
 ]
 
-export function createDemoAudio(bins: number, fftSize = 2048): DemoAudio {
+export function createDemoAudio(bins: number, opts: DemoAudioOptions = {}): DemoAudio {
+  const fftSize = opts.fftSize ?? 2048
+  const mood = opts.mood ?? 'music'
   let ctx: AudioContext | null = null
   let analyserL: AnalyserNode | null = null
   let analyserR: AnalyserNode | null = null
@@ -173,6 +182,118 @@ export function createDemoAudio(bins: number, fftSize = 2048): DemoAudio {
     schedTimer = setTimeout(scheduler, 25)
   }
 
+  // Ambient "fireplace" mood — a slow, musical piece rather than a drone: warm
+  // pads on the Am–F–C–G progression, a low bass drone, a sparse echoed melody,
+  // and soft ember crackle for the fire texture. Calm and pitched (no drums, no
+  // tempo grid), so it reads as gentle flame flicker under the preset's heavy
+  // smoothing. Everything hangs off the shared `bus`; ctx.close() tears it down.
+  function startAmbient() {
+    if (!ctx || !bus || !noiseBuffer) return
+    const c = ctx
+    const busNode = bus
+    const now = c.currentTime
+    const CHORD_SEC = 4.5 // seconds per chord — deliberately slow
+
+    // Dreamy feedback echo for the melody line.
+    const echo = c.createDelay()
+    echo.delayTime.value = 0.38
+    const fb = c.createGain(); fb.gain.value = 0.34
+    echo.connect(fb).connect(echo)
+    const echoWet = c.createGain(); echoWet.gain.value = 0.45
+    echo.connect(echoWet).connect(busNode)
+    const leadDest = c.createGain()
+    leadDest.connect(busNode) // dry
+    leadDest.connect(echo)    // send
+
+    // Warm pad: root + third + fifth (octave up), detuned saws through a low-pass,
+    // with a slow swell in and out.
+    const pad = (rootMidi: number, third: number, time: number, dur: number) => {
+      const lp = c.createBiquadFilter()
+      lp.type = 'lowpass'
+      lp.frequency.value = 1100
+      const g = c.createGain()
+      const peak = 0.05
+      g.gain.setValueAtTime(0.0001, time)
+      g.gain.exponentialRampToValueAtTime(peak, time + 1.0)
+      g.gain.setValueAtTime(peak, time + dur - 1.4)
+      g.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+      lp.connect(g).connect(busNode)
+      const pans = [-0.5, 0, 0.5]
+      ;[0, third, 7].forEach((semi, i) => {
+        const f = midi(rootMidi + 12 + semi)
+        for (const det of [-7, 7]) {
+          const osc = c.createOscillator()
+          osc.type = 'sawtooth'
+          osc.frequency.value = f
+          osc.detune.value = det
+          osc.connect(panner(pans[i]!)).connect(lp)
+          osc.start(time)
+          osc.stop(time + dur + 0.1)
+        }
+      })
+    }
+
+    // Low bass drone under the chord root.
+    const droneNote = (freq: number, time: number, dur: number) => {
+      const osc = c.createOscillator()
+      const lp = c.createBiquadFilter()
+      const g = c.createGain()
+      osc.type = 'triangle'
+      osc.frequency.value = freq
+      lp.type = 'lowpass'
+      lp.frequency.value = 320
+      g.gain.setValueAtTime(0.0001, time)
+      g.gain.exponentialRampToValueAtTime(0.16, time + 0.8)
+      g.gain.setValueAtTime(0.16, time + dur - 1.0)
+      g.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+      osc.connect(lp).connect(g).connect(busNode)
+      osc.start(time)
+      osc.stop(time + dur + 0.1)
+    }
+
+    // Soft bell-ish melody note (long decay), routed through the echo.
+    const softLead = (freq: number, time: number) => {
+      tone(freq, time, 1.6, 'triangle', 0.12, leadDest, 0, Math.random() * 1.2 - 0.6)
+    }
+
+    const scheduleChord = (barIndex: number, time: number) => {
+      const { root, third } = BARS[barIndex % BARS.length]!
+      pad(root, third, time, CHORD_SEC + 1.1) // overlap the next chord for smoothness
+      droneNote(midi(root - 12), time, CHORD_SEC + 0.6)
+      const pool = [0, third, 7, 12, 14]
+      for (let k = 0; k < 3; k++) {
+        if (Math.random() < 0.7) {
+          const t = time + (0.4 + k) * (CHORD_SEC / 3.6)
+          const semi = pool[Math.floor(Math.random() * pool.length)]!
+          softLead(midi(root + 24 + semi), t)
+        }
+      }
+    }
+
+    let bar = 0
+    let next = now + 0.2
+
+    // One ticking scheduler drives both the chords (by time) and the ember crackle
+    // (probabilistic), so a single `schedTimer` covers everything for stop().
+    const tick = () => {
+      if (!ctx) return
+      while (next < c.currentTime + 0.6) {
+        scheduleChord(bar, next)
+        bar++
+        next += CHORD_SEC
+      }
+      if (Math.random() < 0.5) {
+        const center = 800 + Math.random() * 5200
+        noiseHit(c.currentTime + 0.02, 0.02 + Math.random() * 0.04, 0.04 + Math.random() * 0.09, 0, center, Math.random() * 1.6 - 0.8)
+      }
+      if (Math.random() < 0.08) {
+        tone(80 + Math.random() * 40, c.currentTime + 0.02, 0.09, 'triangle', 0.1, busNode, 0, Math.random() - 0.5)
+      }
+      schedTimer = setTimeout(tick, 170)
+    }
+    tick()
+  }
+
   function analyse(onData: (mono: Uint8Array, left: Uint8Array, right: Uint8Array) => void) {
     if (!analyserL || !analyserR || !procL || !procR || !bufL || !bufR) return
     analyserL.getFloatTimeDomainData(bufL)
@@ -237,15 +358,19 @@ export function createDemoAudio(bins: number, fftSize = 2048): DemoAudio {
     bufL = new Float32Array(fftSize)
     bufR = new Float32Array(fftSize)
 
-    // Count-in that bounces left / right / left, so the stereo split is
-    // unmistakable before the full mix drops in.
-    const beat = STEP * 4
-    const t0 = ctx.currentTime + 0.15
-    ;[-1, 1, -1].forEach((pan, i) => countIn(t0 + i * beat, pan))
+    if (mood === 'ambient') {
+      startAmbient()
+    } else {
+      // Count-in that bounces left / right / left, so the stereo split is
+      // unmistakable before the full mix drops in.
+      const beat = STEP * 4
+      const t0 = ctx.currentTime + 0.15
+      ;[-1, 1, -1].forEach((pan, i) => countIn(t0 + i * beat, pan))
 
-    nextTime = t0 + 3 * beat // main loop starts right after the count-in
-    step = 0
-    scheduler()
+      nextTime = t0 + 3 * beat // main loop starts right after the count-in
+      step = 0
+      scheduler()
+    }
     analyse(onData)
   }
 

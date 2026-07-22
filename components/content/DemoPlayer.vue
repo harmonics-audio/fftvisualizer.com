@@ -3,15 +3,20 @@ import { ref, computed, onBeforeUnmount } from 'vue'
 import { FFTVisualizer } from 'vue-fft-visualizer'
 import 'vue-fft-visualizer/style.css'
 import { createDemoAudio, type DemoAudio } from './demoAudio'
+import { createRadioAudio, type RadioAudio, SOMA } from './radioAudio'
 
 const data = ref(new Uint8Array(80))
 const dataLeft = ref(new Uint8Array(80))
 const dataRight = ref(new Uint8Array(80))
-// Audio source: 'synth' feeds the generative track (external mode), 'mic' hands
-// off to the component's built-in local capture. Nothing starts automatically.
-const source = ref<'none' | 'synth' | 'mic'>('none')
+// Audio source: 'synth' feeds the generative track, 'radio' the SomaFM stream
+// (both external mode), 'mic' hands off to the component's built-in local capture.
+// Nothing starts automatically.
+const source = ref<'none' | 'synth' | 'mic' | 'radio'>('none')
 const loading = ref(false)
 let demo: DemoAudio | null = null
+let radio: RadioAudio | null = null
+const nowPlaying = ref('')
+let npTimer: ReturnType<typeof setInterval> | null = null
 
 const mode = computed(() => (source.value === 'mic' ? 'local' : 'external'))
 
@@ -94,9 +99,42 @@ const presets = [
 const active = ref(0)
 const activeProps = computed(() => presets[active.value]!.props)
 
+// Which generative track each look sounds best with: Fireplace wants the calm
+// ambient bed, everything else the rhythmic music loop.
+type Track = 'music' | 'ambient'
+const ambientPresets = new Set<string>(['Fireplace'])
+const trackFor = (i: number): Track => (ambientPresets.has(presets[i]!.name) ? 'ambient' : 'music')
+
+// The track currently sounding (null when the synth is stopped) — lets us tell
+// whether switching preset needs to swap the audio.
+const playingTrack = ref<Track | null>(null)
+
+function feed(mono: Uint8Array, left: Uint8Array, right: Uint8Array) {
+  data.value = mono
+  dataLeft.value = left
+  dataRight.value = right
+}
+
 function stopSynth() {
   demo?.stop()
   demo = null
+  playingTrack.value = null
+}
+
+function stopRadio() {
+  radio?.stop()
+  radio = null
+  stopNowPlaying()
+}
+
+async function startSynth(track: Track) {
+  stopRadio()
+  loading.value = true
+  source.value = 'synth' // mode → external (also releases the mic if it was running)
+  demo = createDemoAudio(80, { mood: track })
+  playingTrack.value = track
+  await demo.start(feed)
+  loading.value = false
 }
 
 async function toggleSynth() {
@@ -105,15 +143,47 @@ async function toggleSynth() {
     source.value = 'none'
     return
   }
+  await startSynth(trackFor(active.value))
+}
+
+// Opt-in SomaFM stream — real, licensed music straight from the source, kept
+// separate from the always-available generative synth so the demo still works
+// if the stream is unreachable.
+async function toggleRadio() {
+  if (source.value === 'radio') {
+    stopRadio()
+    source.value = 'none'
+    return
+  }
+  stopSynth()
   loading.value = true
-  source.value = 'synth' // mode → external (also stops the mic if it was running)
-  demo = createDemoAudio(80)
-  await demo.start((mono, left, right) => {
-    data.value = mono
-    dataLeft.value = left
-    dataRight.value = right
-  })
+  source.value = 'radio' // mode → external (releases the mic if it was running)
+  radio = createRadioAudio(80)
+  try {
+    await radio.start(feed)
+  } catch {
+    stopRadio()
+    source.value = 'none'
+    loading.value = false
+    return
+  }
   loading.value = false
+  startNowPlaying()
+}
+
+// Selecting a look also drives the audio: start the synth if nothing is playing,
+// or swap its track when the new look wants a different one. The click is a user
+// gesture, so starting audio here satisfies the autoplay policy. A running mic or
+// radio is never interrupted — only the look changes.
+async function selectPreset(i: number) {
+  active.value = i
+  const track = trackFor(i)
+  if (source.value === 'none') {
+    await startSynth(track)
+  } else if (source.value === 'synth' && track !== playingTrack.value) {
+    stopSynth()
+    await startSynth(track)
+  }
 }
 
 function toggleMic() {
@@ -122,16 +192,40 @@ function toggleMic() {
     return
   }
   stopSynth()
+  stopRadio()
   source.value = 'mic' // mode → local → the component requests mic permission
 }
 
-// e.g. mic permission denied / WebGL failure — revert the mic toggle
+// e.g. mic permission denied / WebGL failure — revert to no source
 function onError() {
   if (source.value === 'mic') source.value = 'none'
   loading.value = false
 }
 
-onBeforeUnmount(stopSynth)
+// SomaFM now-playing (CORS-enabled JSON); the newest song is first.
+async function refreshNowPlaying() {
+  try {
+    const res = await fetch(SOMA.songs, { cache: 'no-store' })
+    const json = await res.json()
+    const s = json?.songs?.[0]
+    nowPlaying.value = s ? `${s.artist} — ${s.title}` : ''
+  } catch {
+    // leave the previous value; attribution still shows the station name
+  }
+}
+function startNowPlaying() {
+  refreshNowPlaying()
+  npTimer = setInterval(refreshNowPlaying, 20000)
+}
+function stopNowPlaying() {
+  if (npTimer) { clearInterval(npTimer); npTimer = null }
+  nowPlaying.value = ''
+}
+
+onBeforeUnmount(() => {
+  stopSynth()
+  stopRadio()
+})
 </script>
 
 <template>
@@ -155,9 +249,14 @@ onBeforeUnmount(stopSynth)
 
     <div class="demo-bar">
       <button class="demo-play" @click="toggleSynth">
-        <template v-if="loading">Loading…</template>
+        <template v-if="loading && source === 'synth'">Loading…</template>
         <template v-else-if="source === 'synth'">❚❚ Pause</template>
-        <template v-else>▶ Play track</template>
+        <template v-else>▶ Play</template>
+      </button>
+      <button class="demo-play" @click="toggleRadio">
+        <template v-if="loading && source === 'radio'">Loading…</template>
+        <template v-else-if="source === 'radio'">■ Stop radio</template>
+        <template v-else>📻 Radio</template>
       </button>
       <button class="demo-play" @click="toggleMic">
         <template v-if="source === 'mic'">■ Stop mic</template>
@@ -168,10 +267,17 @@ onBeforeUnmount(stopSynth)
           v-for="(p, i) in presets"
           :key="p.name"
           :class="{ active: i === active }"
-          @click="active = i"
+          @click="selectPreset(i)"
         >{{ p.name }}</button>
       </div>
     </div>
+
+    <p v-if="source === 'radio'" class="demo-radio">
+      <span v-if="nowPlaying">♫ {{ nowPlaying }} · </span>
+      <a :href="SOMA.station" target="_blank" rel="noopener">{{ SOMA.name }}</a>
+      on <a href="https://somafm.com" target="_blank" rel="noopener">SomaFM</a> ·
+      <a :href="SOMA.support" target="_blank" rel="noopener">support them</a>
+    </p>
 
     <p class="demo-hint">
       Want every knob? <a href="https://vue-fft-visualizer.vercel.app" target="_blank" rel="noopener">Open the full playground →</a>
@@ -251,5 +357,19 @@ onBeforeUnmount(stopSynth)
   text-align: left;
   font-size: 0.85rem;
   opacity: 0.7;
+}
+
+.demo-radio {
+  margin: 0.75rem 0 0;
+  text-align: left;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+.demo-radio a {
+  color: var(--ui-primary, currentColor);
+  text-decoration: none;
+}
+.demo-radio a:hover {
+  text-decoration: underline;
 }
 </style>
