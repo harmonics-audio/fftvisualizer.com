@@ -78,6 +78,16 @@ const presets = [
       gradient: 'rainbow', gradientDirection: 'horizontal',
       stereo: true, showPeaks: false, smoothing: 0.5, bands: 40
     }
+  },
+  {
+    // playground "fireplace" preset (noiseFloor dropped for the clean synth;
+    // the high smoothing is what gives the slow, flickering flame-like motion)
+    name: 'Fireplace',
+    props: {
+      barSpace: 0.35, glow: 1,
+      gradient: 'rainbow', gradientDirection: 'horizontal',
+      showPeaks: false, smoothing: 0.9
+    }
   }
 ] as const
 
