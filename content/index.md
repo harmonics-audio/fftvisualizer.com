@@ -1,12 +1,14 @@
 ---
 seo:
-  title: FFT Visualizer — WebGL audio spectrum analyzer for Vue
-  description: A high-performance, WebGL-based real-time audio spectrum analyzer and
-    FFT visualizer component for Vue 3. Microphone, tab/system audio, WebSocket, or
-    your own Web Audio data — rendered on the GPU in a single draw call.
+  title: WebGL Audio Spectrum Analyzer for Vue
+  description: A high-performance, WebGL audio spectrum analyzer for Vue 3 — visualize a
+    mic, tab/system audio, a WebSocket stream, or your own data, all on the GPU.
 ---
 
 ::u-page-hero
+---
+orientation: horizontal
+---
 #title
 Real-time audio spectrum, on the GPU
 
@@ -14,6 +16,11 @@ Real-time audio spectrum, on the GPU
 A high-performance, WebGL-based audio spectrum analyzer and FFT visualizer for Vue 3.
 Visualize the microphone, tab/system audio, a WebSocket stream, or your own data —
 the entire frame drawn by a single fragment shader.
+
+#default
+  :::div{.hero-visual}
+  ![FFT Visualizer radial spectrum](/hero.png){width="1034" height="926"}
+  :::
 
 #links
   :::u-button

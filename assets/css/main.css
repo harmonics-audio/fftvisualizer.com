@@ -30,3 +30,19 @@
   --color-woodsmoke-900: #000000;
   --color-woodsmoke-950: #000000;
 }
+
+/* Homepage hero visual. The radial PNG is additive glow with a transparent
+   background, so it washes out on light backgrounds — a soft dark radial
+   "spotlight" keeps it sitting on darkness and popping in both colour modes. */
+.hero-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(closest-side, rgba(8, 8, 14, 0.7), rgba(8, 8, 14, 0) 78%);
+}
+.hero-visual img {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  filter: drop-shadow(0 10px 44px rgba(0, 0, 0, 0.35));
+}

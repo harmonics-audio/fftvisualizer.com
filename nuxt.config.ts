@@ -1,6 +1,12 @@
 export default defineNuxtConfig({
   extends: ['docus'],
   css: ['~/assets/css/main.css'],
+  // Feeds the SEO module the real site name (otherwise it falls back to the package
+  // name, "fftvisualizer-com") and the canonical/OG base URL.
+  site: {
+    name: 'FFT Visualizer',
+    url: 'https://fftvisualizer.com',
+  },
   // Disable OG image generation — the @nuxtjs/og-image renderer needs the native
   // @takumi-rs/core module, which isn't installed and fails the build. We ship a
   // static og-image.png (public/) and point the social meta at it below instead.
