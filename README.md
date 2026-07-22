@@ -1,82 +1,73 @@
-# Docus Default Starter
+# fftvisualizer.com
 
-> A beautiful, minimal starter for creating documentation with Docus
+The documentation and landing site for [**FFT Visualizer**](https://www.npmjs.com/package/vue-fft-visualizer)
+(`vue-fft-visualizer`) — a WebGL-based real-time audio spectrum analyzer component for Vue 3.
 
-This is the default Docus starter template that provides everything you need to build beautiful documentation sites with Markdown and Vue components.
+**Live:** https://fftvisualizer.com
 
-> [!TIP]
-> If you're looking for i18n support, check out the [i18n starter](https://github.com/nuxt-themes/docus/tree/main/.starters/i18n).
+The component library itself lives in a separate repo:
+[harmonics-audio/vue-fft-visualizer](https://github.com/harmonics-audio/vue-fft-visualizer).
 
-## ✨ Features
+## Stack
 
-- 🎨 **Beautiful Design** - Clean, modern documentation theme
-- 📱 **Responsive** - Mobile-first responsive design  
-- 🌙 **Dark Mode** - Built-in dark/light mode support
-- 🔍 **Search** - Full-text search functionality
-- 📝 **Markdown Enhanced** - Extended markdown with custom components
-- 🎨 **Customizable** - Easy theming and brand customization
-- ⚡ **Fast** - Optimized for performance with Nuxt 4
-- 🔧 **TypeScript** - Full TypeScript support
+- [Docus](https://docus.dev) — documentation theme (extended via `extends: ['docus']`)
+- [Nuxt 4](https://nuxt.com) + [Nuxt Content v3](https://content.nuxt.com) + [Nuxt UI v4](https://ui.nuxt.com)
+- pnpm · Node 24
+- The site embeds a **live demo** of the actual `vue-fft-visualizer` package (installed as a dependency)
 
-## 🚀 Quick Start
+## Development
 
 ```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+pnpm install
+pnpm dev      # dev server at http://localhost:3000
+pnpm build    # production build → .output/
 ```
 
-Your documentation site will be running at `http://localhost:3000`
-
-## 📁 Project Structure
+## Structure
 
 ```
-my-docs/
-├── content/              # Your markdown content
-│   ├── index.md         # Homepage
-│   ├── 1.getting-started/  # Getting started section
-│   └── 2.essentials/    # Essential documentation
-├── public/              # Static assets
-└── package.json         # Dependencies and scripts
+content/                     # Markdown docs (Nuxt Content)
+├── index.md                 # Homepage: hero + live demo + features
+├── 1.getting-started/       # Introduction, Installation, Data modes, How it works
+└── 2.reference/             # Props, Gradients, Composables
+components/content/
+├── DemoPlayer.vue           # Live embedded visualizer (::demo-player in index.md)
+└── demoAudio.ts             # Generative stereo synth that feeds the demo
+app.config.ts                # Docus/Nuxt UI config (reefgold/woodsmoke theme, nav, socials)
+assets/css/main.css          # Brand palette as :root CSS variables
+public/
+├── og-image.png             # Social share card (1200×630)
+└── favicon.ico
+nuxt.config.ts               # Docus extend + build/deploy tweaks
+Dockerfile / .dockerignore   # Container build for Coolify
 ```
 
-## ⚡ Built with
+## Implementation notes
 
-This starter comes pre-configured with:
+A few non-obvious choices worth knowing before editing:
 
-- [Nuxt 4](https://nuxt.com) - The web framework
-- [Nuxt Content](https://content.nuxt.com/) - File-based CMS
-- [Nuxt UI](https://ui.nuxt.com) - UI components
-- [Nuxt Image](https://image.nuxt.com/) - Optimized images
-- [Tailwind CSS 4](https://tailwindcss.com/) - Utility-first CSS
-- [Docus Layer](https://www.npmjs.com/package/docus) - Documentation theme
+- **Live demo, not a GIF.** `components/content/DemoPlayer.vue` mounts the real
+  `<FFTVisualizer>` and drives it with a generative Web Audio track (`demoAudio.ts`) or the
+  visitor's microphone. It's referenced from `content/index.md` as `:demo-player` inside a
+  `<ClientOnly>` boundary.
 
-## 📖 Documentation
+- **Theme via plain CSS variables.** `assets/css/main.css` defines the `reefgold` /
+  `woodsmoke` palette as `--color-reefgold-*` / `--color-woodsmoke-*` on `:root`, and
+  `app.config.ts` maps them (`ui.colors.primary: 'reefgold'`). It deliberately does **not**
+  `@import "@nuxt/ui"` / `"tailwindcss"` — those resolve transitively through Docus and
+  fail to import directly.
 
-For detailed documentation on customizing your Docus project, visit the [Docus Documentation](https://docus.dev)
+- **Static OG image.** Docus' dynamic OG image renderer (`@nuxtjs/og-image` →
+  `@takumi-rs/core`) is disabled in `nuxt.config.ts` (`ogImage: { enabled: false }`) because
+  the native module isn't installed. Instead a static `public/og-image.png` is shipped and
+  the social meta tags point at it via `app.head` in `nuxt.config.ts`.
 
-### 🤖 AI Assistant Skill
+- **Clean URLs.** `nitro.prerender.autoSubfolderIndex` emits each page as `foo/index.html`
+  so extensionless routes (`/reference/props`) resolve on the production server.
 
-Get started quickly with Docus by adding specialized knowledge to your AI assistant (Cursor, Claude, etc.):
+## Deployment
 
-```bash
-npx skills add nuxt-content/docus
-```
-
-This skill helps you create documentation faster by providing your AI assistant with best practices, MDC component usage, ready-to-use templates, writing guidelines, and configuration tips for Docus. Perfect for quickly scaffolding new documentation projects.
-
-## 🚀 Deployment
-
-Build for production:
-
-```bash
-npm run build
-```
-
-The built files will be in the `.output` directory, ready for deployment to any hosting provider that supports Node.js.
-
-## 📄 License
-
-[MIT License](https://opensource.org/licenses/MIT) 
+Self-hosted on [Coolify](https://coolify.io) via the multi-stage `Dockerfile`
+(`node:24-slim`, pnpm). The build installs `python3 make g++` for `better-sqlite3` (a Nuxt
+Content dependency that compiles from source), runs `pnpm build`, and serves the Nitro
+output with `node .output/server/index.mjs`. Pushes to `main` trigger a redeploy.
