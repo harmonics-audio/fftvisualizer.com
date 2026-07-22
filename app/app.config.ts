@@ -4,6 +4,11 @@ export default defineAppConfig({
       primary: 'reefgold',
       secondary: 'woodsmoke',
       neutral: 'neutral'
+    },
+    header: {
+      slots: {
+        root: 'dark:bg-secondary-500/60'
+      }
     }
   },
   site: {
