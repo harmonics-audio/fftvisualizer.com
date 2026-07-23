@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue'
-import { FFTVisualizer } from 'vue-fft-visualizer'
-import 'vue-fft-visualizer/style.css'
+import { FFTVisualizer } from 'fft-visualizer-vue'
+import 'fft-visualizer-vue/style.css'
 import { createDemoAudio, type DemoAudio } from './demoAudio'
 import { createRadioAudio, type RadioAudio, SOMA } from './radioAudio'
 

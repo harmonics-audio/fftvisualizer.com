@@ -14,7 +14,7 @@ export default defineAppConfig({
   site: {
     name: 'FFT Visualizer',
     description:
-      'A high-performance, WebGL-based real-time audio spectrum analyzer and FFT visualizer component for Vue 3.'
+      'A high-performance, WebGL-based real-time audio spectrum analyzer and FFT visualizer for the web — a framework-agnostic TypeScript core with a Vue 3 component.'
   },
   header: {
     title: 'FFT Visualizer',
@@ -22,11 +22,14 @@ export default defineAppConfig({
       alt: 'FFT Visualizer'
     }
   },
+  navigation: {
+    sub: 'header'
+  },
   socials: {
-    github: 'https://github.com/harmonics-audio/vue-fft-visualizer'
+    github: 'https://github.com/harmonics-audio/fft-visualizer'
   },
   github: {
-    url: 'https://github.com/harmonics-audio/vue-fft-visualizer',
+    url: 'https://github.com/harmonics-audio/fft-visualizer',
     rootDir: '.'
   },
   toc: {

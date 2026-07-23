@@ -1,19 +1,19 @@
 # fftvisualizer.com
 
-The documentation and landing site for [**FFT Visualizer**](https://www.npmjs.com/package/vue-fft-visualizer)
-(`vue-fft-visualizer`) — a WebGL-based real-time audio spectrum analyzer component for Vue 3.
+The documentation and landing site for [**FFT Visualizer**](https://www.npmjs.com/package/fft-visualizer-vue)
+(`fft-visualizer-vue`) — a WebGL-based real-time audio spectrum analyzer component for Vue 3.
 
 **Live:** https://fftvisualizer.com
 
 The component library itself lives in a separate repo:
-[harmonics-audio/vue-fft-visualizer](https://github.com/harmonics-audio/vue-fft-visualizer).
+[harmonics-audio/fft-visualizer](https://github.com/harmonics-audio/fft-visualizer).
 
 ## Stack
 
 - [Docus](https://docus.dev) — documentation theme (extended via `extends: ['docus']`)
 - [Nuxt 4](https://nuxt.com) + [Nuxt Content v3](https://content.nuxt.com) + [Nuxt UI v4](https://ui.nuxt.com)
 - pnpm · Node 24
-- The site embeds a **live demo** of the actual `vue-fft-visualizer` package (installed as a dependency)
+- The site embeds a **live demo** of the actual `fft-visualizer-vue` package (installed as a dependency)
 
 ## Development
 

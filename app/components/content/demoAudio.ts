@@ -10,7 +10,7 @@
  *
  * Autoplay policy: start() must be called from a user gesture (a click).
  */
-import type { FftProcessor } from 'vue-fft-visualizer/wasm'
+import type { FftProcessor } from 'fft-visualizer-vue/wasm'
 
 export interface DemoAudio {
   start: (onData: (mono: Uint8Array, left: Uint8Array, right: Uint8Array) => void) => Promise<void>
@@ -308,7 +308,7 @@ export function createDemoAudio(bins: number, opts: DemoAudioOptions = {}): Demo
 
   async function start(onData: (mono: Uint8Array, left: Uint8Array, right: Uint8Array) => void) {
     stop()
-    const { FftProcessor } = await import('vue-fft-visualizer/wasm')
+    const { FftProcessor } = await import('fft-visualizer-vue/wasm')
     ctx = new AudioContext()
     await ctx.resume()
 

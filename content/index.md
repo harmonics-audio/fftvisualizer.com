@@ -1,8 +1,9 @@
 ---
 seo:
-  title: WebGL Audio Spectrum Analyzer for Vue
-  description: A high-performance, WebGL audio spectrum analyzer for Vue 3 — visualize a
-    mic, tab/system audio, a WebSocket stream, or your own data, all on the GPU.
+  title: WebGL Audio Spectrum Analyzer for the Web
+  description: A high-performance, WebGL audio spectrum analyzer and FFT visualizer for the
+    web — a framework-agnostic TypeScript core with a Vue 3 component. Visualize a mic,
+    tab/system audio, a WebSocket stream, or your own data, all on the GPU.
 ---
 
 ::u-page-hero
@@ -13,9 +14,10 @@ orientation: horizontal
 Real-time audio spectrum, on the GPU
 
 #description
-A high-performance, WebGL-based audio spectrum analyzer and FFT visualizer for Vue 3.
-Visualize the microphone, tab/system audio, a WebSocket stream, or your own data —
-the entire frame drawn by a single fragment shader.
+A high-performance, WebGL-based audio spectrum analyzer and FFT visualizer for the web —
+a framework-agnostic TypeScript core with a first-class Vue 3 component. Visualize the
+microphone, tab/system audio, a WebSocket stream, or your own data — the entire frame
+drawn by a single fragment shader.
 
 #default
   :::div{.hero-visual}
@@ -27,7 +29,7 @@ the entire frame drawn by a single fragment shader.
   ---
   color: neutral
   size: xl
-  to: /getting-started/installation
+  to: /guide/introduction
   trailing-icon: i-lucide-arrow-right
   ---
   Get started
@@ -50,7 +52,7 @@ the entire frame drawn by a single fragment shader.
   color: neutral
   icon: i-simple-icons-github
   size: xl
-  to: https://github.com/harmonics-audio/vue-fft-visualizer
+  to: https://github.com/harmonics-audio/fft-visualizer
   variant: outline
   ---
   View on GitHub
@@ -119,10 +121,11 @@ Why FFT Visualizer
   icon: i-lucide-package
   ---
   #title
-  One peer dependency
+  Framework-agnostic core
 
   #description
-  Just Vue 3. Rendering uses native WebGL — no charting library, no canvas 2D.
+  A vanilla-TypeScript engine with thin wrappers — Vue today, React next. Rendering uses
+  native WebGL: no charting library, no canvas 2D.
   :::
 
   :::u-page-feature
