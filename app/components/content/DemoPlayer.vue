@@ -280,7 +280,7 @@ onBeforeUnmount(() => {
     </p>
 
     <p class="demo-hint">
-      Want every knob? <a href="https://vue-fft-visualizer.vercel.app" target="_blank" rel="noopener">Open the full playground →</a>
+      Want every knob? <a href="https://demo.fftvisualizer.com/" target="_blank" rel="noopener">Open the full playground →</a>
     </p>
   </div>
 </template>

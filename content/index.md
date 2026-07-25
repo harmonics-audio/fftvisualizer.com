@@ -40,7 +40,7 @@ drawn by a single fragment shader.
   color: neutral
   icon: i-lucide-play
   size: xl
-  to: https://vue-fft-visualizer.vercel.app
+  to: https://demo.fftvisualizer.com/
   target: _blank
   variant: subtle
   ---
