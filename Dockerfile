@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 make g+
     && rm -rf /var/lib/apt/lists/*
 
 # Pin pnpm to match the packageManager field (corepack/nixpacks can lag behind)
-RUN npm i -g pnpm@10.34.1
+RUN npm i -g pnpm@11.9.0
 
 COPY . .
 
