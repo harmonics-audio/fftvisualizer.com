@@ -32,6 +32,13 @@ export default defineNuxtConfig({
       ],
     },
   },
+  // @nuxtjs/mcp-toolkit (pulled in by Docus) serves the MCP endpoint at /mcp and already
+  // redirects requests that ask for HTML — i.e. someone pasting the URL into a browser —
+  // rather than leaving them on the POST-only 405. It defaults to the home page; point it
+  // at the page that actually explains what the endpoint is and how to connect to it.
+  mcp: {
+    browserRedirect: '/guide/ai-tools',
+  },
   // nuxt-llms (pulled in by Docus) bails out entirely without an absolute domain — it
   // needs one to write absolute links — so until this was set, no /llms.txt existed at
   // all. Sections are left unset on purpose: @nuxt/content then auto-generates one per
