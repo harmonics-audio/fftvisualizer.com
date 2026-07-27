@@ -26,6 +26,13 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
 ARG AI_GATEWAY_API_KEY=enabled-at-runtime
 ENV AI_GATEWAY_API_KEY=$AI_GATEWAY_API_KEY
 
+# @nuxtjs/sitemap builds each <loc> from `getRequestURL(event).origin || inferSiteURL()`.
+# /sitemap.xml is prerendered, so there is no request and the first term is "" — which is
+# why every <loc> shipped relative despite site.url being set in nuxt.config.ts. inferSiteURL()
+# only reads env, and only at build time, so this belongs here rather than in Coolify's
+# runtime env. Must match site.url.
+ENV NUXT_SITE_URL=https://www.fftvisualizer.com
+
 # Cap the heap below the VPS total so a runaway build aborts instead of waking
 # the kernel OOM killer.
 ENV NODE_OPTIONS=--max-old-space-size=4096
