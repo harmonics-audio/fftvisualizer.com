@@ -10,7 +10,7 @@
  * SomaFM is listener-supported — the UI shows attribution + a support link.
  * Autoplay policy: start() must be called from a user gesture (a click).
  */
-import type { FftProcessor } from 'fft-visualizer-vue/wasm'
+import type { FftProcessor } from '@fft-visualizer/vue/wasm'
 
 export const SOMA = {
   name: 'Groove Salad Classic',
@@ -63,7 +63,7 @@ export function createRadioAudio(bins: number, fftSize = 2048): RadioAudio {
     audioEl.preload = 'auto'
     audioEl.src = STREAM_URL
 
-    const { FftProcessor } = await import('fft-visualizer-vue/wasm')
+    const { FftProcessor } = await import('@fft-visualizer/vue/wasm')
 
     ctx = new AudioContext()
     await ctx.resume()

@@ -2,7 +2,7 @@
 seo:
   title: WebGL Audio Spectrum Analyzer for the Web
   description: A high-performance, WebGL audio spectrum analyzer and FFT visualizer for the
-    web — a framework-agnostic TypeScript core with a Vue 3 component. Visualize a mic,
+    web — a framework-agnostic TypeScript core with Vue 3 and React components. Visualize a mic,
     tab/system audio, a WebSocket stream, or your own data, all on the GPU.
 ---
 
@@ -15,7 +15,7 @@ Real-time audio spectrum, on the GPU
 
 #description
 A high-performance, WebGL-based audio spectrum analyzer and FFT visualizer for the web —
-a framework-agnostic TypeScript core with a first-class Vue 3 component. Visualize the
+a framework-agnostic TypeScript core with first-class Vue 3 and React components. Visualize the
 microphone, tab/system audio, a WebSocket stream, or your own data — the entire frame
 drawn by a single fragment shader.
 
@@ -124,7 +124,7 @@ Why FFT Visualizer
   Framework-agnostic core
 
   #description
-  A vanilla-TypeScript engine with thin wrappers — Vue today, React next. Rendering uses
+  A vanilla-TypeScript engine with thin wrappers for Vue and React. Rendering uses
   native WebGL: no charting library, no canvas 2D.
   :::
 
