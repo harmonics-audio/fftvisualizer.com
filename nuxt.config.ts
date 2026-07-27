@@ -5,7 +5,9 @@ export default defineNuxtConfig({
   // name, "fftvisualizer-com") and the canonical/OG base URL.
   site: {
     name: 'FFT Visualizer',
-    url: 'https://fftvisualizer.com',
+    // www, not the apex: the apex 301s here, and a canonical/sitemap/llms.txt URL
+    // that redirects is one a naive fetcher reads as an empty 5-byte body.
+    url: 'https://www.fftvisualizer.com',
   },
   // Disable OG image generation — the @nuxtjs/og-image renderer needs the native
   // @takumi-rs/core module, which isn't installed and fails the build. We ship a
@@ -14,12 +16,12 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [
-        { property: 'og:image', content: 'https://fftvisualizer.com/og-image.png' },
+        { property: 'og:image', content: 'https://www.fftvisualizer.com/og-image.png' },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         { property: 'og:image:type', content: 'image/png' },
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:image', content: 'https://fftvisualizer.com/og-image.png' },
+        { name: 'twitter:image', content: 'https://www.fftvisualizer.com/og-image.png' },
       ],
       link: [
         // Docus already emits the /favicon.ico link (now pointing at our replaced file).
@@ -35,7 +37,9 @@ export default defineNuxtConfig({
   // all. Sections are left unset on purpose: @nuxt/content then auto-generates one per
   // page collection, so new tabs (React, …) are picked up without touching this config.
   llms: {
-    domain: 'https://fftvisualizer.com',
+    // Must match site.url — every link in llms.txt is built from this, and Coolify
+    // is set to redirect the apex to www (application setting `redirect: www`).
+    domain: 'https://www.fftvisualizer.com',
     title: 'FFT Visualizer',
     description: 'A high-performance, WebGL audio spectrum analyzer and FFT visualizer for '
       + 'the web — a framework-agnostic TypeScript core with Vue 3 and React components. '
