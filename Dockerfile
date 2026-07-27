@@ -17,6 +17,15 @@ COPY . .
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm i --frozen-lockfile
 
+# Docus's assistant module decides at BUILD time whether the AI button exists: its
+# setup() reads process.env.AI_GATEWAY_API_KEY and, when unset, registers disabled
+# component stubs and skips the /__docus__/assistant route entirely. It only tests
+# presence, never validity, so a placeholder suffices here — the real key is injected
+# at runtime by Coolify, where the AI SDK gateway reads it per request. That also
+# keeps the secret out of the build stage and its layer history.
+ARG AI_GATEWAY_API_KEY=enabled-at-runtime
+ENV AI_GATEWAY_API_KEY=$AI_GATEWAY_API_KEY
+
 # Cap the heap below the VPS total so a runaway build aborts instead of waking
 # the kernel OOM killer.
 ENV NODE_OPTIONS=--max-old-space-size=4096
