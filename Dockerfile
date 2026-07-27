@@ -36,7 +36,13 @@ FROM node:24-slim
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=build /app/.output ./.output
+# --chown is load-bearing: @nuxt/content's node-server preset creates its SQLite
+# content DB lazily, on the first *runtime* query, at .output/server/contents.sqlite
+# (the relative `database.filename` resolves against the server chunk, not cwd).
+# Copied as root it is unwritable by USER node below, so the dump import fails and
+# every runtime content query — /mcp's list-pages and get-page — 500s. Prerendered
+# pages, /raw/*.md and llms.txt are unaffected, which is what makes it easy to miss.
+COPY --from=build --chown=node:node /app/.output ./.output
 
 EXPOSE 3000
 # node -e fetch instead of curl/wget — node:24-slim ships neither, and Coolify

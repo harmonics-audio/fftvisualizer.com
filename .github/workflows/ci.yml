@@ -57,7 +57,16 @@ jobs:
             sleep 1
           done
 
+          # Everything probed so far is prerendered, and prerendered output keeps serving
+          # even when the runtime content DB can't be opened. Probe a real runtime content
+          # query too — that is the only surface a non-writable .output actually breaks.
+          mcp=$(curl -sS -X POST http://localhost:3000/mcp \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list-pages","arguments":{}}}' || true)
+
           echo "serving=$serving health=$health"
+          echo "----- mcp list-pages -----"; echo "$mcp" | head -c 500; echo
           echo "----- container logs -----"; docker logs smoke || true
           echo "----- healthcheck log -----"
           docker inspect -f '{{if .State.Health}}{{range .State.Health.Log}}exit={{.ExitCode}} {{printf "%q" .Output}}{{"\n"}}{{end}}{{end}}' smoke || true
@@ -68,6 +77,9 @@ jobs:
           # and localhost/IPv6 mistakes that a published-port curl from the runner cannot.
           # Coolify gates its proxy switchover on this, so an unhealthy image never goes live.
           [ "$health" = healthy ] || { echo "::error::Smoke test failed — container health is '$health', expected healthy"; exit 1; }
+          case "$mcp" in
+            *'"isError":true'*|'') echo "::error::Smoke test failed — /mcp list-pages did not return content (runtime content DB unreadable?)"; exit 1 ;;
+          esac
 
       - name: Push image
         if: github.ref == 'refs/heads/main'
