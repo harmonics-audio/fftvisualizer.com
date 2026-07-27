@@ -30,6 +30,21 @@ export default defineNuxtConfig({
       ],
     },
   },
+  // nuxt-llms (pulled in by Docus) bails out entirely without an absolute domain — it
+  // needs one to write absolute links — so until this was set, no /llms.txt existed at
+  // all. Sections are left unset on purpose: @nuxt/content then auto-generates one per
+  // page collection, so new tabs (React, …) are picked up without touching this config.
+  llms: {
+    domain: 'https://fftvisualizer.com',
+    title: 'FFT Visualizer',
+    description: 'A high-performance, WebGL audio spectrum analyzer and FFT visualizer for '
+      + 'the web — a framework-agnostic TypeScript core with Vue 3 and React components. '
+      + 'Visualize a mic, tab/system audio, a WebSocket stream, or your own data, all on the GPU.',
+    full: {
+      title: 'FFT Visualizer — complete documentation',
+      description: 'The full guide, Core API, and Vue/React wrapper docs in a single file.',
+    },
+  },
   nitro: {
     prerender: {
       // Emit each page as foo/index.html so the production server serves clean
