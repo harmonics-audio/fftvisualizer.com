@@ -97,5 +97,5 @@ jobs:
       - name: Trigger Coolify redeploy
         if: github.ref == 'refs/heads/main'
         run: |
-          curl --fail-with-body -sS "$COOLIFY_DEPLOY_URL" \
+          curl --fail-with-body -sS -X POST "$COOLIFY_DEPLOY_URL" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
