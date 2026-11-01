@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   extends: ['docus'],
+  modules: ['@nuxtjs/plausible'],
   css: ['~/assets/css/main.css'],
   // Feeds the SEO module the real site name (otherwise it falls back to the package
   // name, "fftvisualizer-com") and the canonical/OG base URL.
@@ -55,6 +56,13 @@ export default defineNuxtConfig({
       title: 'FFT Visualizer — complete documentation',
       description: 'The full guide, Core API, and Vue/React wrapper docs in a single file.',
     },
+  },
+  // Plausible through our own origin, so ad blockers don't drop the events
+  routeRules: {
+    '/plio/api/event': { proxy: 'https://plausible.io/api/event' },
+  },
+  plausible: {
+    apiHost: 'https://www.fftvisualizer.com/plio',
   },
   nitro: {
     prerender: {
