@@ -62,6 +62,9 @@ export default defineNuxtConfig({
     '/plio/api/event': { proxy: 'https://plausible.io/api/event' },
   },
   plausible: {
+    // The Plausible site is registered as the apex; without this the tracker
+    // reports window.location.hostname (www.), which Plausible rejects.
+    domain: 'fftvisualizer.com',
     apiHost: 'https://www.fftvisualizer.com/plio',
   },
   nitro: {
