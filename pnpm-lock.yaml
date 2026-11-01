@@ -169,9 +169,9 @@ importers:
       '@fft-visualizer/vue':
         specifier: ^1.0.0
         version: 1.0.0(vue@3.5.44(typescript@5.9.3))
-      '@plausible-analytics/tracker':
-        specifier: ^0.4.7
-        version: 0.4.7
+      '@nuxtjs/plausible':
+        specifier: ^4.0.0
+        version: 4.0.0(@nuxt/schema@4.6.3)(confbox@0.2.4)(dotenv@17.4.2)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.151.0)(rolldown@1.2.15)(unplugin@3.4.0(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.67.2)(vite@8.3.5(@types/node@26.1.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.1)))
       better-sqlite3:
         specifier: ^13.0.3
         version: 13.0.3
@@ -1593,6 +1593,9 @@ packages:
 
   '@nuxtjs/mdc@0.23.2':
     resolution: {integrity: sha512-oM6wCKROrLg0g4qLG/cg/M9yMFLsqJxWH1tIjpf4L9uxzJ2twhRxVgKWXaiBNF/W0BoNkJ/kr1qpAJBj6fQSog==}
+
+  '@nuxtjs/plausible@4.0.0':
+    resolution: {integrity: sha512-R2G9BktBVSCG0nDNBSVlC8jDbsYBgrbqmn8wWisiIF9lKfRq99NwIvtw/DLuwexJT5pCYPvBflIof4NS4ZX8Xg==}
 
   '@nuxtjs/robots@6.2.4':
     resolution: {integrity: sha512-+MyHUT6fAqJHnGPxzSrPgXCp+giH04A9aS4RwSvjgHDzYQ+xOqpaSy8jb7U7sPlXmPZE2Et3ened9ccfmwGPKA==}
@@ -9100,6 +9103,24 @@ snapshots:
       - oxc-parser
       - rolldown
       - supports-color
+      - unplugin
+
+  '@nuxtjs/plausible@4.0.0(@nuxt/schema@4.6.3)(confbox@0.2.4)(dotenv@17.4.2)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.151.0)(rolldown@1.2.15)(unplugin@3.4.0(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.67.2)(vite@8.3.5(@types/node@26.1.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.1)))':
+    dependencies:
+      '@nuxt/kit': 4.6.3(@nuxt/schema@4.6.3)(confbox@0.2.4)(dotenv@17.4.2)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.151.0)(rolldown@1.2.15)(unplugin@3.4.0(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.67.2)(vite@8.3.5(@types/node@26.1.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.1)))
+      '@plausible-analytics/tracker': 0.4.7
+      defu: 6.1.7
+      ufo: 1.6.4
+    transitivePeerDependencies:
+      - '@nuxt/schema'
+      - confbox
+      - dotenv
+      - giget
+      - jiti
+      - magic-string
+      - mlly
+      - oxc-parser
+      - rolldown
       - unplugin
 
   '@nuxtjs/robots@6.2.4(385299ecaa6e251755b7bdb08fc862ca)':

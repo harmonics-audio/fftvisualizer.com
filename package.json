@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@fft-visualizer/vue": "^1.0.0",
-    "@plausible-analytics/tracker": "^0.4.7",
+    "@nuxtjs/plausible": "^4.0.0",
     "better-sqlite3": "^13.0.3",
     "docus": "latest",
     "nuxt": "^4.6.3"
