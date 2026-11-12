@@ -11,11 +11,13 @@ jobs:
   # a green image build IS the check. On PRs we build and smoke-test but don't push.
   build-push:
     runs-on: ubuntu-latest
+    # REGISTRY_USERNAME, REGISTRY_PASSWORD and COOLIFY_TOKEN live in the
+    # production environment, which only main can use. Pull requests build and
+    # smoke-test without it, so they never see those secrets.
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
     env:
       IMAGE: registry.apps.vernaillen.dev/fftvisualizer-com
-      # Not a secret: the endpoint is useless without COOLIFY_TOKEN. Keeping it here
-      # means REGISTRY_USERNAME / REGISTRY_PASSWORD / COOLIFY_TOKEN can all live as
-      # harmonics-audio org secrets, with nothing to configure per repo.
+      # Not a secret: the endpoint is useless without COOLIFY_TOKEN.
       COOLIFY_DEPLOY_URL: https://coolify.apps.vernaillen.dev/api/v1/deploy?uuid=qxmcfvsxq6g324r63dl93wti&force=false
 
     steps:
